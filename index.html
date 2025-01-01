@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy New Year Shikanjiii</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: radial-gradient(circle, #1a1a2e, #16213e, #0f3460);
+            color: #fff;
+            font-family: 'Arial Black', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        p {
+            font-size: 2rem;
+            margin: 1rem 0;
+            font-weight: 700;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        footer {
+            font-size: 1.8rem;
+            margin-top: 1.5rem;
+            font-weight: 600;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #fff, 0 0 20px #f0f, 0 0 30px #ff0;
+            }
+            to {
+                text-shadow: 0 0 20px #fff, 0 0 30px #0ff, 0 0 40px #ff0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> Happy New Year Shikanjiii 🌷</h1>
+        <p>Thank you for existing.</p>
+        <p>Always laugh and be happy.</p>
+        <footer>— By Perry</footer>
+        <canvas id="fireworks"></canvas>
+        <audio id="background-music" loop>
+            <source src="song.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    <script>
+        const canvas = document.getElementById("fireworks");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+
+        class Particle {
+            constructor(x, y, color, size, speedX, speedY) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.size = size;
+                this.speedX = speedX;
+                this.speedY = speedY;
+                this.opacity = 1;
+            }
+
+            draw() {
+                ctx.globalAlpha = this.opacity;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.opacity -= 0.02;
+                if (this.opacity <= 0) {
+                    this.opacity = 0;
+                }
+            }
+        }
+
+        function createFirework(x, y) {
+            const colors = ["#ff6666", "#ffff66", "#66ff66", "#66ffff", "#6666ff"];
+            for (let i = 0; i < 50; i++) {
+                const size = Math.random() * 3 + 1;
+                const speedX = Math.random() * 4 - 2;
+                const speedY = Math.random() * 4 - 2;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particles.push(new Particle(x, y, color, size, speedX, speedY));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((particle, index) => {
+                if (particle.opacity <= 0) {
+                    particles.splice(index, 1);
+                } else {
+                    particle.update();
+                    particle.draw();
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+
+        function autoFireworks() {
+            for (let i = 0; i < 5; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height * 0.5; // Fireworks spawn in the upper half
+                setTimeout(() => createFirework(x, y), i * 500); // Delay for sequential fireworks
+            }
+        }
+
+        canvas.addEventListener("click", (e) => {
+            createFirework(e.clientX, e.clientY);
+        });
+
+        // Start the animation
+        animate();
+
+        // Show initial fireworks on load
+        autoFireworks();
+
+        // Handle Background Music
+        const backgroundMusic = document.getElementById("background-music");
+        document.body.addEventListener("click", () => {
+            backgroundMusic.play().catch(error => {
+                console.error("Audio playback failed:", error);
+            });
+        });
+
+        // Optional: Display a message prompting the user to click
+        const promptMessage = document.createElement("div");
+        promptMessage.textContent = "Click anywhere to start the music 🎵";
+        promptMessage.style.position = "absolute";
+        promptMessage.style.top = "10px";
+        promptMessage.style.width = "100%";
+        promptMessage.style.textAlign = "center";
+        promptMessage.style.color = "white";
+        promptMessage.style.fontSize = "1.5rem";
+        document.body.appendChild(promptMessage);
+
+        // Remove the message once the audio starts playing
+        backgroundMusic.addEventListener("play", () => {
+            promptMessage.remove();
+        });
+    </script>
+</body>
+</html>
